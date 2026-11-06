@@ -26,6 +26,7 @@ Usage: python3 fetch_data.py [--offline] [--check]
 from __future__ import annotations
 
 import json
+import re
 import ssl
 import sys
 import time
@@ -169,10 +170,15 @@ def all_episodes(rows: list[Row]) -> list[dict]:
 
 
 def series_for(rows: list[Row], ep: dict, cap: int = CAP) -> list[float]:
-    """Percent below the record close on daily closes, day 0..min(cap, length)."""
+    """Percent below the record close on daily closes, day 0..min(cap, length).
+
+    A closed slide stops at the day before the next record: every later close
+    is above the old record, which would draw the line off the top of the
+    chart. The ongoing slide runs to the latest settled close.
+    """
     dates = {d: k for k, (d, _, _) in enumerate(rows)}
     i0 = dates[date.fromisoformat(ep["recordDate"])]
-    end = len(rows) - 1 if ep["ongoing"] else min(i0 + cap, len(rows) - 1)
+    end = len(rows) - 1 if ep["ongoing"] else min(i0 + min(cap, ep["episodeDays"]), len(rows) - 1)
     base = ep["recordClose"]
     return [round((rows[k][1] / base - 1.0) * 100.0, 2) for k in range(i0, end + 1)]
 
@@ -253,11 +259,12 @@ def main() -> None:
         print(f"WARNING: featured record dates not found among slides: {sorted(missing)}")
 
     last_d, last_c, _ = spx[-1]
+    fetched = datetime.fromtimestamp(
+        max((RAW / f"{s.replace('^', '')}.json").stat().st_mtime
+            for s in SYMBOLS.values()), timezone.utc)
     out = {
         "meta": {
-            "builtOn": datetime.fromtimestamp(
-                max((RAW / f"{s.replace('^', '')}.json").stat().st_mtime
-                    for s in SYMBOLS.values()), timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "builtOn": fetched.strftime("%Y-%m-%d %H:%M UTC"),
             "asOfDate": last_d.isoformat(),
             "asOfWeekday": last_d.strftime("%A %-d %B %Y"),
             "lastClose": last_c,
@@ -281,6 +288,15 @@ def main() -> None:
     (BASE / "data" / "episodes.json").write_text(json.dumps(out, indent=1))
     js = "window.CRASH = " + json.dumps(out, separators=(",", ":")) + ";\n"
     (BASE / "data.js").write_text(js)
+    # Cache-bust the page's asset refs so a returning browser can never pair
+    # an old app.js (old axis maths) with a new data.js.
+    ver = fetched.strftime("%Y%m%d%H%M")
+    idx = BASE / "index.html"
+    if idx.exists():
+        idx.write_text(re.sub(
+            r'(href|src)="(styles\.css|data\.js|app\.js)(\?v=\d+)?"',
+            lambda m: f'{m.group(1)}="{m.group(2)}?v={ver}"',
+            idx.read_text()))
 
     print(f"wrote data.js: {len(js) // 1024} KB, {out['meta']['slidesTo6']} slides "
           f"reached 6% ({out['meta']['slidesPast15']} past 15%), as of {last_d}")

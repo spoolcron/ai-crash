@@ -201,7 +201,7 @@ function draw() {
   const H = 470;
   const L = 58, R = 178, T = 18, B = 42;
   const maxLen = Math.max(...vis.map((e) => e.series.length));
-  const xMax = state.horizon === 0 ? Math.max(30, maxLen) : Math.min(state.horizon, maxLen);
+  const xMax = Math.max(10, state.horizon === 0 ? Math.max(30, maxLen) : Math.min(state.horizon, maxLen));
   let yMin = 0;
   for (const e of vis) for (let d = 0; d <= Math.min(xMax, e.series.length - 1); d++)
     if (e.series[d] < yMin) yMin = e.series[d];
@@ -269,6 +269,7 @@ function draw() {
   for (let i = 0; i < labelSlots.length; i++) {
     const s = labelSlots[i];
     if (i > 0 && s.y < labelSlots[i - 1].y + 15) s.y = labelSlots[i - 1].y + 15;
+    s.y = Math.max(T + 12, Math.min(H - B + 6, s.y));
     svg.appendChild(el("text", { class: "endLabel", x: W - R + 14, y: s.y + 4,
       fill: s.color }, s.text));
   }
