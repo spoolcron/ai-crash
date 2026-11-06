@@ -1,0 +1,12 @@
+# Local source material: raw Yahoo Finance payloads and the episode dump the
+# script rebuilds. Kept on disk as provenance, not published.
+data/
+
+# Working notes; the repo ships the app only.
+PROGRESS.md
+
+__pycache__/
+*.pyc
+*.log
+nohup.out
+.DS_Store
