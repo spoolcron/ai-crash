@@ -117,7 +117,7 @@ const featured = EPS.filter(isFeatured);
 const state = {
   preset: "best",
   visible: new Set(featured.map((e) => e.recordDate)),
-  horizon: 250,
+  horizon: 50,
 };
 
 function applyPreset(id) {
