@@ -46,12 +46,13 @@
     <div class="panelHead">
       <h2>The best-known falls</h2>
       <p class="hint">Depth is the lowest close before the next record; trading days run from the
-        record close to that low.</p>
+        record close to that low; recovery days run from the record close to the first close back
+        above it (the next record). Dashes: the ongoing slide has not recovered yet.</p>
     </div>
     <div class="tableScroll">
       <table class="table" id="featuredTable">
         <thead>
-          <tr><th>Fall</th><th>Record close</th><th>Low</th><th>Below record</th><th>Trading days</th></tr>
+          <tr><th>Fall</th><th>Record close</th><th>Low</th><th>Below record</th><th>Trading days</th><th>Recovery days</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -61,7 +62,7 @@
       <div class="tableScroll">
         <table class="table" id="allTable">
           <thead>
-            <tr><th>Fall</th><th>Record close</th><th>Low</th><th>Below record</th><th>Trading days</th></tr>
+            <tr><th>Fall</th><th>Record close</th><th>Low</th><th>Below record</th><th>Trading days</th><th>Recovery days</th></tr>
           </thead>
           <tbody></tbody>
         </table>

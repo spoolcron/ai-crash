@@ -158,6 +158,9 @@ def all_episodes(rows: list[Row]) -> list[dict]:
             "depthPct": round(depth, 4),
             "reachPct": round(reach, 4),
             "daysToLow": low_k - i,
+            # first close back above the record is the next record close (j);
+            # the ongoing slide has not recovered, so recovery stays null
+            "recoveryDays": j - i if pos + 1 < len(rec) else None,
             "episodeDays": j - 1 - i,
             "ongoing": pos == len(rec) - 1,
             "reached": reach <= REACH,

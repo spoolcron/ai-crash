@@ -325,7 +325,8 @@ function rowInto(tbody, e, opts = {}) {
   nm.appendChild(document.createTextNode(name));
   const low = e.ongoing ? "So far" : fmtDMY(e.lowDate);
   const days = String(e.daysToLow);
-  for (const html of [null, fmtDMY(e.recordDate), low, pct(e.depthPct), days]) {
+  const recovery = e.recoveryDays == null ? "\u2014" : String(e.recoveryDays);
+  for (const html of [null, fmtDMY(e.recordDate), low, pct(e.depthPct), days, recovery]) {
     if (html === null) { tr.appendChild(nm); continue; }
     const td = document.createElement("td");
     if (html === pct(e.depthPct)) td.className = "neg";
