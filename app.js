@@ -205,20 +205,22 @@ function draw() {
   let yMin = 0;
   for (const e of vis) for (let d = 0; d <= Math.min(xMax, e.series.length - 1); d++)
     if (e.series[d] < yMin) yMin = e.series[d];
-  yMin = Math.min(-5, Math.floor((yMin * 1.07) / 5) * 5);
+  yMin = Math.min(-40, Math.floor((yMin * 1.07) / 5) * 5);
+  const yMax = 20; // headroom above the record so the first sessions read clearly
 
   const px = (d) => L + (d / xMax) * (W - L - R);
-  const py = (p) => T + (-p / -yMin) * (H - T - B);
+  const py = (p) => T + ((yMax - p) / (yMax - yMin)) * (H - T - B);
 
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
     "aria-label": "S&P 500 falls below record close, by trading day since the record" });
 
   // y grid
   const grid = el("g", { class: "grid" });
-  for (let p = 0; p >= yMin; p -= 10) {
+  for (let p = yMax; p >= yMin; p -= 10) {
     grid.appendChild(el("line", { x1: L, x2: W - R + 8, y1: py(p), y2: py(p) }));
-    if (p < 0) grid.appendChild(el("text", { class: "axis", x: L - 8, y: py(p) + 4,
-      "text-anchor": "end", fill: "var(--ink-faint)", "font-size": 11.5 }, MINUS + -p + "%"));
+    if (p !== 0) grid.appendChild(el("text", { class: "axis", x: L - 8, y: py(p) + 4,
+      "text-anchor": "end", fill: "var(--ink-faint)", "font-size": 11.5 },
+      (p > 0 ? "+" : MINUS) + Math.abs(p) + "%"));
   }
   svg.appendChild(grid);
   svg.appendChild(el("line", { class: "zero", x1: L, x2: W - R + 8, y1: py(0), y2: py(0) }));
